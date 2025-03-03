@@ -1,45 +1,21 @@
 "use client"
-import { useMemo, useState } from 'react';
 import { useFoodCounterSSE } from '@/hooks/use-sse';
 import { Skeleton } from './ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
-import { Input } from './ui/input';
-import { Search } from 'lucide-react';
 import { Badge } from './ui/badge';
+
+
+
+
 
 export default function FoodCountersList() {
   const { foodCounters, loading, error } = useFoodCounterSSE()
-  const [searchQuery, setSearchQuery] = useState("")
 
   // Calculate original price (since we only have the discounted price)
   const calculateOriginalPrice = (discountedPrice: number) => {
     return discountedPrice * 2
   }
 
-  // Filter food counters based on search query
-  const filteredCounters = useMemo(() => {
-    if (!foodCounters || !searchQuery.trim()) return foodCounters
-
-    const query = searchQuery.toLowerCase()
-    return foodCounters.filter((counter) => {
-      // Search in counter name and description
-      if (counter.name.toLowerCase().includes(query) || counter.description.toLowerCase().includes(query)) {
-        return true
-      }
-
-      // Search in menu items
-      if (counter.items) {
-        for (const key in counter.items) {
-          const item = counter.items[key]
-          if (item.name.toLowerCase().includes(query)) {
-            return true
-          }
-        }
-      }
-
-      return false
-    })
-  }, [foodCounters, searchQuery])
 
   if (loading) {
     return (
@@ -80,9 +56,9 @@ export default function FoodCountersList() {
     <div className="space-y-4">
 
 
-      {filteredCounters && filteredCounters.length > 0 ? (
+      {foodCounters && foodCounters.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
-          {filteredCounters
+          {foodCounters
             .filter((counter) => counter && counter.items)
             .map((counter, index) => (
               <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -102,7 +78,7 @@ export default function FoodCountersList() {
 
                   <h3 className="font-semibold text-sm mb-2">Menu Items:</h3>
                   <ul className="space-y-2 text-sm">
-                    {Object.entries(counter.items).map(([key, item]: [string, any]) => {
+                    {Object.entries(counter.items).map(([key, item]) => {
                       const originalPrice = calculateOriginalPrice(item.price)
                       return (
                         <li key={key} className="flex flex-col border-b pb-2">
