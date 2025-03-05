@@ -1,57 +1,81 @@
 "use client"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import Autoplay from "embla-carousel-autoplay"
 
-const promos = [
+import { useState, useEffect } from "react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+
+const carouselItems = [
   {
     id: 1,
-    title: "Pasar rakyat",
-    description: "Diskon semua 50%, 5 stock terbatas",
-    image: "/placeholder.svg?height=400&width=1200",
-    color: "bg-gradient-to-r from-orange-500 to-pink-500",
+    title: "Ramadhan Special: Diskon 50%",
+    description: "Diskon spesial untuk semua menu kantek selama Pasar Rakyat.",
   },
   {
     id: 2,
-    title: "Iklan disewakan",
-    description: "",
-    image: "/placeholder.svg?height=400&width=1200",
-    color: "bg-gradient-to-r from-orange-500 to-red-500",
+    title: "Penting Untuk diingat",
+    description: "Kupon dapat ditukar maksimal jam 18.30. Jika pedagang kehabisan stok, kupon bisa ditukar dengan makanan lainnya atau direimburse.",
   },
+  {
+    id: 3,
+    title: "Dipersembahkan oleh",
+    description: "Gradasi FTUI, Sekip FTUI, FUSI FTUI, ILUNI FTUI",
+  },
+
 ]
 
 export function HeroSection() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide()
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev === carouselItems.length - 1 ? 0 : prev + 1))
+  }
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? carouselItems.length - 1 : prev - 1))
+  }
   return (
-    <div className="space-y-6 mb-8">
-      <Carousel
-        opts={{
-          align: "start",
-          loop: true,
-        }}
-        plugins={[
-          Autoplay({
-            delay: 5000,
-          }),
-        ]}
-        className="w-full"
+    <div className="relative overflow-hidden mb-4">
+      <div
+        className="flex transition-transform duration-500 ease-in-out"
+        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
-        <CarouselContent>
-          {promos.map((promo) => (
-            <CarouselItem key={promo.id}>
-              <div className="relative h-[200px] sm:h-[300px] w-full overflow-hidden rounded-xl">
-                <div className={`absolute inset-0 ${promo.color} opacity-90`} />
-                <div className="absolute inset-0 flex flex-col justify-center p-6 sm:p-10 text-white">
-                  <h2 className="text-2xl sm:text-4xl font-bold mb-2 sm:mb-4">{promo.title}</h2>
-                  <p className="text-sm sm:text-xl opacity-90">{promo.description}</p>
-                </div>
+        {carouselItems.map((item) => (
+          <div key={item.id} className="w-full flex-shrink-0">
+            <div className="relative h-[150px] w-full">
+              <div className="absolute inset-0  bg-orange-500 flex flex-col justify-end p-4">
+                <h2 className="text-white text-xl font-bold">{item.title}</h2>
+                <p className="text-white text-sm">{item.description}</p>
               </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <div className="hidden sm:block">
-          <CarouselPrevious className="left-4" />
-          <CarouselNext className="right-4" />
-        </div>
-      </Carousel>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button
+        className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/70 flex items-center justify-center"
+        onClick={prevSlide}
+      >
+        <ChevronLeft className="h-5 w-5 text-orange-600" />
+      </button>
+      <button
+        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/70 flex items-center justify-center"
+        onClick={nextSlide}
+      >
+        <ChevronRight className="h-5 w-5 text-orange-600" />
+      </button>
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+        {carouselItems.map((_, index) => (
+          <button
+            key={index}
+            className={`h-2 w-2 rounded-full ${index === currentSlide ? "bg-orange-600" : "bg-white/70"}`}
+            onClick={() => setCurrentSlide(index)}
+          />
+        ))}
+      </div>
     </div>
   )
 }
